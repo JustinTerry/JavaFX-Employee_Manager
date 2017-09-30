@@ -18,14 +18,14 @@ public class Database {
 	} 
 
 	public boolean insertEmp(String first, String last, String street, String city, String state, String zip, String email,
-			String social, String pin, String phone) {
+			String social, String pin, String phone, String dob, boolean admin) {
 		int nextID;
 		
 		try {
 			openDB();
 			PreparedStatement myStmt = dBConn.prepareStatement(
-					" INSERT INTO employees(employeeID, employeeFirstName, employeeLastName, employeeStreetAddress, employeeCity, employeeState, employeeZipCode, employeeEmail, employeeSocial, employeePin, employeePhone)"
-							+ " values (?,?,?,?,?,?,?,?,?,?,?)");
+					" INSERT INTO employees(employeeID, employeeFirstName, employeeLastName, employeeStreetAddress, employeeCity, employeeState, employeeZipCode, employeeEmail, employeeSocial, employeePin, employeePhone, employeeDOB, employeeIsAdmin)"
+							+ " values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			
 			ResultSet myRs = myStmt.executeQuery(" SELECT MAX(employeeID) AS highestID FROM store.employees;");
 			if(myRs.next()) {
@@ -45,6 +45,9 @@ public class Database {
 			myStmt.setString(9, social);
 			myStmt.setString(10, pin);
 			myStmt.setString(11, phone);
+			myStmt.setString(12, dob);
+			myStmt.setBoolean(13, admin);
+			
 
 			try {
 				myStmt.execute();

@@ -3,6 +3,8 @@ package employee_Manager;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -13,9 +15,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -25,6 +29,7 @@ import javafx.stage.Stage;
 
 public class employeeManager extends Application {
 	private VBox leftBox = new VBox(25);
+	private Boolean isAdmin = false;
 	private HBox colorHolder = new HBox();
 	private Button newEmpBut = new Button("Add New Employee");
 	private Button findEmpBut = new Button("Edit Employee");
@@ -73,7 +78,8 @@ public class employeeManager extends Application {
 			@Override
 			public void handle(ActionEvent arg0) {
 				HBox newCustBox = new HBox();
-				TextField first, last, street, city, state, email, phone, zip, social, pin;
+				TextField first, last, street, city, state, email, phone, zip, social1, social2, social3, pin, dob;
+				CheckBox adminCB = new CheckBox();
 				Button submitNewEmp = new Button("Submit");
 				Button cancelNewCust = new Button("Cancel");
 				submitNewEmp.setPrefSize(120, 60);
@@ -98,15 +104,23 @@ public class employeeManager extends Application {
 				socialLabel.setFont(new Font("Arial", 17));
 				Label pinLabel = new Label("PIN");
 				pinLabel.setFont(new Font("Arial", 17));
+				Label dobLabel = new Label("Date of Birth");
+				dobLabel.setFont(new Font("Arial", 17));
+				Label adminLabel = new Label("Administrator");
+				adminLabel.setFont(new Font("Arial", 17));
 				Label message = new Label("");
 
 				GridPane gP = new GridPane();
+				GridPane socialGP = new GridPane();
 				BorderPane borPan = new BorderPane();
 				gP.setPadding(new Insets(20));
 				gP.setAlignment(Pos.TOP_CENTER);
 				gP.setPrefSize(mainStage.getWidth(), mainStage.getHeight());
 				gP.setHgap(20);
 				gP.setVgap(20);
+				socialGP.getColumnConstraints().addAll(new ColumnConstraints(40), new ColumnConstraints(), new ColumnConstraints(30), new ColumnConstraints(), new ColumnConstraints(50));
+
+
 				newCustBox.getChildren().add(borPan);
 				borPan.setCenter(gP);
 				bP.setCenter(newCustBox);
@@ -118,33 +132,50 @@ public class employeeManager extends Application {
 				gP.add(streetLabel, 0, 2);
 				gP.add(cityLabel, 0, 3);
 				gP.add(stateLabel, 0, 4);
+				gP.add(dobLabel, 0, 5);
 				gP.add(zipLabel, 2, 0);
 				gP.add(phoneLabel, 2, 1);
 				gP.add(emailLabel, 2, 2);
 				gP.add(socialLabel, 2, 3);
 				gP.add(pinLabel, 2, 4);
-				gP.add(message, 0, 6);
+				gP.add(adminLabel, 2, 5);
+				gP.add(message, 0, 7);
 
 				gP.add(first = new TextField(), 1, 0);
 				gP.add(last = new TextField(), 1, 1);
 				gP.add(street = new TextField(), 1, 2);
 				gP.add(city = new TextField(), 1, 3);
 				gP.add(state = new TextField(), 1, 4);
+				gP.add(dob = new TextField(), 1, 5);
 				gP.add(zip = new TextField(), 3, 0);
 				gP.add(phone = new TextField(), 3, 1);
 				gP.add(email = new TextField(), 3, 2);
-				gP.add(social = new TextField(), 3, 3);
+				gP.add(socialGP, 3, 3);
+				socialGP.add(social1 = new TextField(), 0, 0);
+				socialGP.add(new Label("-"), 1,0);
+				socialGP.add(new Label("-"), 3, 0);
+				socialGP.add(social2 = new TextField(), 2, 0);
+				socialGP.add(social3 = new TextField(), 4, 0);
 				gP.add(pin = new TextField(), 3, 4);
+				gP.add(adminCB, 3, 5);
 				first.setPrefWidth(500);
 				zip.setPrefWidth(500);
 				gP.setHalignment(submitNewEmp, HPos.CENTER);
 				gP.setHalignment(cancelNewCust, HPos.CENTER);
-				gP.add(submitNewEmp, 0, 5);
-				gP.add(cancelNewCust, 2, 5);
+				gP.add(submitNewEmp, 0, 6);
+				gP.add(cancelNewCust, 2, 6);
 				gP.setColumnSpan(submitNewEmp, 2);
 				gP.setColumnSpan(cancelNewCust, 2);
 				gP.setColumnSpan(message, 4);
 				gP.setHalignment(message, HPos.CENTER);
+				
+				adminCB.selectedProperty().addListener(new ChangeListener<Boolean>() {
+					public void changed(ObservableValue<? extends Boolean> ov,
+							Boolean old_val, Boolean new_val) {
+								isAdmin = true;
+					}
+				});				
+				
 				submitNewEmp.setOnAction(new EventHandler<ActionEvent>() {
 
 					@Override
@@ -156,10 +187,11 @@ public class employeeManager extends Application {
 
 						Optional<ButtonType> result = youSure.showAndWait();
 						if (result.get() == ButtonType.OK) {
+							String social = social1.getText() + social2.getText()+ social3.getText();
 							if (numberFormats.isInt(zip.getText()) && numberFormats.isInt(pin.getText())) {
 								worked = empDB.insertEmp(first.getText(), last.getText(), street.getText(),
 										city.getText(), state.getText(), zip.getText(), email.getText(),
-										social.getText(), pin.getText(), phone.getText());
+										social, pin.getText(), phone.getText(), dob.getText(), isAdmin);
 							} else {
 								worked = false;
 							}
